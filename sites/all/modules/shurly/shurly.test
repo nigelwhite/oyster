@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Shurly module.
+ */
+
+/**
+ * Shurly tests.
+ */
+class ShurlyTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Shurly tests',
+      'description' => 'Tests for the shurly module.',
+      'group' => 'Shurly',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('shurly'));
+  }
+
+  /**
+   * Test that we can submit the same long URL twice in a row and then submit another URL.
+   */
+  function testSubmitSameUrlTwice() {
+    // Sign in.
+    $user = $this->drupalCreateUser(array('Create short URLs'));
+    $this->drupalLogin($user);
+    $this->drupalGet('shurly');
+
+    // Shrink http://example.net/foo and verify it got shrinked.
+    $edit = array('long_url' => 'http://example.net/foo');
+    $this->drupalPost(NULL, $edit, t('Shrink it!'));
+    $this->assertUrlShrinked('http://example.net/foo');
+
+    // Shrink the same url once again.
+    $edit = array('long_url' => 'http://example.net/foo');
+    $this->drupalPost(NULL, $edit, t('Shrink it!'));
+
+    // Shrink http://example.net/bar and verify it got shrinked.
+    $edit = array('long_url' => 'http://example.net/bar');
+    $this->drupalPost(NULL, $edit, t('Shrink it!'));
+    $this->assertUrlShrinked('http://example.net/bar');
+  }
+
+  /**
+   * Test that, when editing a destination URL, the hash is updated accordingly.
+   */
+  function testHashEditedUrl() {
+    // Sign in.
+    $user = $this->drupalCreateUser(array(
+      'Create short URLs',
+      'Edit own URLs',
+      'View own URL stats',
+    ));
+    $this->drupalLogin($user);
+
+    // Shrink http://foo.net and verify we have 1 shrinked URL in {shurly}.
+    $this->drupalGet('shurly');
+    $edit = array('long_url' => 'http://foo.net');
+    $this->drupalPost(NULL, $edit, t('Shrink it!'));
+    $this->assertEqual($this->getNbUrlsShrinked(), 1);
+
+    // Edit the destination URL to http://bar.net.
+    $this->drupalGet('myurls');
+    $this->clickLink('edit');
+    $this->assertFieldByName('destination', 'http://foo.net');
+    $edit = array('destination' => 'http://bar.net');
+    $this->drupalPost(NULL, $edit, t('Submit'));
+    $this->assertText(t('Are you sure you want to continue editing this short URL?'));
+    $this->drupalPost(NULL, array(), t('Proceed'));
+
+    // Shrink http://foo.net and verify we now have 2 shrinked URLs in {shurly}: one for http://bar.net and one for http://foo.net.
+    $this->drupalGet('shurly');
+    $edit = array('long_url' => 'http://foo.net');
+    $this->drupalPost(NULL, $edit, t('Shrink it!'));
+    $this->assertEqual($this->getNbUrlsShrinked(), 2);
+  }
+
+  /**
+   * Assert whether a short URL exists for a given long URL.
+   *
+   * @param $long_url Long URL.
+   */
+  function assertUrlShrinked($long_url) {
+    $count = db_select('shurly', 's')
+      ->fields('s')
+      ->condition('destination', $long_url)
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+    $message = t('URL @url has been shrinked', array('@url' => $long_url));
+    $this->assertTrue($count > 0, $message);
+  }
+
+  /**
+   * Return the number of URLs shrinked.
+   *
+   * @return Number of URLs in {shurly}.
+   */
+  function getNbUrlsShrinked() {
+    return db_select('shurly', 's')
+      ->fields('s')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+  }
+
+}
+

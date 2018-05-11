@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Shurly's admin interface.
+ */
+
+/**
+ * Shurly's admin interface.
+ */
+class ShurlyAdminTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Shurly admin interface tests',
+      'description' => 'Tests for shurly\'s admin interface.',
+      'group' => 'Shurly',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('shurly'));
+  }
+
+  /**
+   * A menu item to access admin/config/systen/shurly should show up on admin/config.
+   */
+  function testSubmitSameUrlTwice() {
+    $user = $this->drupalCreateUser(array(
+      'access administration pages',
+      'Administer short URLs'
+    ));
+    $this->drupalLogin($user);
+    $this->drupalGet('admin/config');
+    $this->assertLink('ShURLy');
+    $this->assertLinkByHref('admin/config/system/shurly');
+  }
+
+}
+

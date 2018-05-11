@@ -1,0 +1,13 @@
+name = ShURLy Migration
+description = Migrate short URLs to Drupal 7.
+package = ShURLy
+dependencies[] = shurly
+dependencies[] = migrate
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2018-01-17
+version = "7.x-1.4+12-dev"
+core = "7.x"
+project = "shurly"
+datestamp = "1516202886"
+
