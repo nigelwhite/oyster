@@ -137,7 +137,8 @@ Kanban
 #soon .pane-title,
 #later .pane-title,
 #progressing .pane-title,
-#waiting .pane-title {
+#waiting .pane-title,
+#done .pane-title {
   font-size: 1.5em;
 }
 
