@@ -1,0 +1,6 @@
+name: oyster
+recipe: drupal7
+config:
+  php: '7.1'
+  drush: global:8.1.15
+  webroot: .
