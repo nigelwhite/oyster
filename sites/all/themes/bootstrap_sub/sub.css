@@ -43,6 +43,10 @@ Comments
   margin-left: 3rem;
 }
 
+.indented .field-name-field-usefulness {
+  display: none;
+}
+
 /* ----------------------------
 Blocks
 ------------------------------- */
