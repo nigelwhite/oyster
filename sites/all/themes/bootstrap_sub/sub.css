@@ -29,7 +29,6 @@ blockquote {
 Comments
 ------------------------------- */
 .comment {
-  margin-left: 2em;
   margin-top:0.5em;
   background-color: #d9ecff;
   padding: 1em;
@@ -38,6 +37,10 @@ Comments
 
 .group-thread {
   margin-left: 2em;
+}
+
+.indented {
+  margin-left: 3rem;
 }
 
 /* ----------------------------
